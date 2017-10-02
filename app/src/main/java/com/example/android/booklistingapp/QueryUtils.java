@@ -24,7 +24,9 @@ import java.util.List;
 
 public final class QueryUtils {
 
-    /** Tag for the log messages */
+    /**
+     * Tag for the log messages
+     */
     private static final String LOG_TAG = QueryUtils.class.getSimpleName();
 
     /**
@@ -155,7 +157,11 @@ public final class QueryUtils {
 
             // Extract the JSONArray associated with the key called "items",
             // which represents a list of items (or books).
-            JSONArray bookArray = baseJsonResponse.getJSONArray("items");
+            JSONArray bookArray;
+            if (baseJsonResponse.has("items"))
+                bookArray = baseJsonResponse.getJSONArray("items");
+            else
+                bookArray = null;
 
             // For each book in the bookArray, create an {@link Book} object
             for (int i = 0; i < bookArray.length(); i++) {
@@ -173,36 +179,46 @@ public final class QueryUtils {
 
                 // Extract the JSONArray associated with the key called "authors",
                 // which represents a list of authors of the book.
-                JSONArray authorsArray = volumeInfo.getJSONArray("authors");
-
-                // Extract all values for the JSONArray in String[] array
-                String[] authors = new String[authorsArray.length()];
-                if (authorsArray.length() > 0)
-                    for (int j = 0; j < authorsArray.length(); j++) {
-                        authors[j] = authorsArray.getString(j);
-                    }
+                String[] authors;
+                if (volumeInfo.has("authors")) {
+                    JSONArray authorsArray = volumeInfo.getJSONArray("authors");
+                    // Extract all values for the JSONArray in String[] array
+                    authors = new String[authorsArray.length()];
+                    if (authorsArray.length() > 0)
+                        for (int j = 0; j < authorsArray.length(); j++) {
+                            authors[j] = authorsArray.getString(j);
+                        }
+                } else
+                    authors = new String[]{"Author", "N/A"};
 
                 // Extract the value for the key called "pageCount"
-                int pageCount = volumeInfo.getInt("pageCount");
+                int pageCount;
+                if (volumeInfo.has("pageCount"))
+                    pageCount = volumeInfo.getInt("pageCount");
+                else
+                    pageCount = 0;
 
                 // Extract the value for the key called "infoLink"
-                String bookurl = volumeInfo.getString("infoLink");
+                String bookurl;
+                if (volumeInfo.has("infoLink"))
+                    bookurl = volumeInfo.getString("infoLink");
+                else
+                    bookurl = "N/A";
 
                 // For a given book, extract the JSONObject associated with the
                 // key called "imageLinks", which represents a list of all image Links
                 // for that book.
                 JSONObject imageLinks;
                 String imageUrl = "None";
-                if (volumeInfo.has("imageLinks")){
-                imageLinks = volumeInfo.getJSONObject("imageLinks");
-
-                // Extract the value for the key called "thumbnail"
-                imageUrl = imageLinks.getString("thumbnail");
+                if (volumeInfo.has("imageLinks")) {
+                    imageLinks = volumeInfo.getJSONObject("imageLinks");
+                    // Extract the value for the key called "thumbnail"
+                    imageUrl = imageLinks.getString("thumbnail");
                 }
 
                 // Create a new {@link Book} object with the title, authors, pageCount, imageUrl,
                 // and bookUrl from the JSON response.
-                Book book = new Book(title,authors,pageCount,imageUrl,bookurl);
+                Book book = new Book(title, authors, pageCount, imageUrl, bookurl);
 
                 // Add the new {@link Book} to the list of books.
                 books.add(book);
