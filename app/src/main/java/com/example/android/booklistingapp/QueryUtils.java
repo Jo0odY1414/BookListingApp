@@ -161,7 +161,7 @@ public final class QueryUtils {
             if (baseJsonResponse.has("items"))
                 bookArray = baseJsonResponse.getJSONArray("items");
             else
-                bookArray = null;
+                bookArray = new JSONArray();
 
             // For each book in the bookArray, create an {@link Book} object
             for (int i = 0; i < bookArray.length(); i++) {
